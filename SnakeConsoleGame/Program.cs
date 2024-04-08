@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -163,25 +163,28 @@ namespace Snake
         public IEnumerable<Pixel> Body { get { return body; } }
         public Direction Direction { get; private set; }
         public int MovementSpeed { get; private set; }
-
+        public string HeadShape { get; set; }
+        public string BodyShape { get; set; }
 
 
         public Snake(int x, int y)
         {
-            Head = new Pixel(x, y, ConsoleColor.Red);
-            body = InitializeBody(2);
+            HeadShape = "O";
+            Head = new Pixel(x, y, ConsoleColor.Red, HeadShape);
+            BodyShape = "=";
+            body = InitializeBody(2, BodyShape);
             Direction = Direction.Right;
             MovementSpeed = 200;
         }
 
-        private LinkedList<Pixel> InitializeBody(int initialBodyLength)
+        private LinkedList<Pixel> InitializeBody(int initialBodyLength, string shape)
         {
             LinkedList<Pixel> newBody = new LinkedList<Pixel>();
 
             for (int i = 0; i < initialBodyLength; i++)
             {
                 int offsetX = i + 1;
-                newBody.AddLast(new Pixel(Head.PositionX - offsetX, Head.PositionY, ConsoleColor.Green));
+                newBody.AddLast(new Pixel(Head.PositionX - offsetX, Head.PositionY, ConsoleColor.Green, shape));
             }
 
             return newBody;
@@ -195,7 +198,7 @@ namespace Snake
         public void Move()
         {
             Pixel newHead = Head.GetNeighbor(Direction);
-            Pixel bodyPart = new Pixel(Head.PositionX, Head.PositionY, ConsoleColor.Green);
+            Pixel bodyPart = new Pixel(Head.PositionX, Head.PositionY, ConsoleColor.Green, BodyShape);
             Head = newHead;
             body.AddFirst(bodyPart);
             body.RemoveLast();
@@ -220,7 +223,7 @@ namespace Snake
         public void AddBerryToSnakeBody()
         {
             Pixel lastBodyPart = body.Last();
-            Pixel newBodyPart = new Pixel(lastBodyPart.PositionX, lastBodyPart.PositionY, ConsoleColor.Green);
+            Pixel newBodyPart = new Pixel(lastBodyPart.PositionX, lastBodyPart.PositionY, ConsoleColor.Green, BodyShape);
             body.AddLast(newBodyPart);
             
         }
@@ -231,13 +234,14 @@ namespace Snake
         public int PositionX { get; private set; }
         public int PositionY { get; private set; }
         public ConsoleColor Color { get; set; }
+        public string Shape { get; set; }
 
-
-        public Pixel(int x, int y, ConsoleColor color)
+        public Pixel(int x, int y, ConsoleColor color, string shape)
         {
             PositionX = x;
             PositionY = y;
             Color = color;
+            Shape = shape;
         }
 
         public Pixel GetNeighbor(Direction direction)
@@ -259,7 +263,7 @@ namespace Snake
                     x++;
                     break;
             }
-            return new Pixel(x, y, ConsoleColor.Red);
+            return new Pixel(x, y, ConsoleColor.Red, Shape);
         }
 
         public override bool Equals(object obj)
@@ -270,12 +274,12 @@ namespace Snake
             return PositionX == other.PositionX && PositionY == other.PositionY;
         }
 
-       
+
     }
 
     public class Berry : Pixel
     {
-        public Berry(int x, int y) : base(x, y, ConsoleColor.White) { }
+        public Berry(int x, int y) : base(x, y, ConsoleColor.White, "@") { }
     }
 
     public enum Direction
@@ -297,7 +301,7 @@ namespace Snake
             {
                 SetCursorPosition(obj.PositionX, obj.PositionY);
                 ForegroundColor = obj.Color;
-                Write("■");
+                Write(obj.Shape);
             }
         }
 
